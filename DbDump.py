@@ -10,7 +10,7 @@ import re
 # загрузка конфигурации
 
 step = 60*360  # download step, s
-daysTotal = 500 # download period, days
+daysTotal = 500  # download period, days
 dbConf = DbConfig.DbConfig()
 conf = Config.Config()
 connect = psycopg2.connect(database=dbConf.dbname, user=dbConf.user, host=dbConf.address, password=dbConf.password)

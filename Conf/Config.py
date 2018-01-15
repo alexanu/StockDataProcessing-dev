@@ -1,6 +1,7 @@
 import os
 import os.path
 
+
 class Config:
     def __init__(self):
         if not os.path.isdir('Account'):

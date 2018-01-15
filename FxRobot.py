@@ -11,7 +11,6 @@ from oandapyV20.contrib.requests import TakeProfitDetails, StopLossDetails
 from oandapyV20.endpoints.accounts import AccountDetails
 from oandapyV20.endpoints.pricing import PricingInfo
 from Conf.Config import Config
-import seaborn
 
 config = Config()
 oanda = oandapyV20.API(environment=config.env, access_token = config.token)
@@ -30,7 +29,7 @@ last_ask = 0
 last_bid = 0
 
 if config.write_back_log:
-    print 'Backlog file name:', f_back_log.name
+    print('Backlog file name:', f_back_log.name)
     f_back_log.write('DateTime,Instrument,ASK,BID,Price change,Status, Spread, Result \n')
 
 def process_data(ask, bid, status):
@@ -40,7 +39,7 @@ def process_data(ask, bid, status):
     global  long_time
     global short_time
     if status != 'tradeable':
-        print config.insName, 'is halted.'
+        print(config.insName, 'is halted.')
         return
     asks.append(ask)
     bids.append(bid)
@@ -60,7 +59,9 @@ def process_data(ask, bid, status):
         times.pop(0)
 
     if config.write_back_log:
-        f_back_log.write('%s,%s,%s,%s,%s,%s,%s \n' % (datetime.datetime.now(), config.insName, pReq.response.get('prices')[0].get('asks')[1].get('price'), pReq.response.get('prices')[0].get('bids')[1].get('price'), pChange, ask-bid, result))
+        f_back_log.write('%s,%s,%s,%s,%s \n' % (datetime.datetime.now(), config.insName,
+                                                      pReq.response.get('prices')[0].get('asks')[1].get('price'),
+                                                      pReq.response.get('prices')[0].get('bids')[1].get('price'), ask-bid, ))
 
 def do_long(ask):
     if config.take_profit_value!=0 or config.stop_loss_value!=0:
@@ -73,9 +74,9 @@ def do_long(ask):
                                       units=config.lot_size)
     r = orders.OrderCreate(config.account_id, data=order.data)
     resp = oanda.request(r)
-    print resp
+    print(resp)
     price = resp.get('orderFillTransaction').get('price')
-    print time, 's: BUY price =', price
+    print(time, 's: BUY price =', price)
     return float(price)
 
 def do_short(bid):
@@ -89,32 +90,32 @@ def do_short(bid):
                                       units=-config.lot_size)
     r = orders.OrderCreate(config.account_id, data=order.data)
     resp = oanda.request(r)
-    print resp
+    print(resp)
     price = resp.get('orderFillTransaction').get('price')
-    print time, 's: SELL price =', price
+    print(time, 's: SELL price =', price)
     return float(price)
 
 def do_close_long():
     try:
         r = positions.PositionClose(config.account_id, 'EUR_USD', {"longUnits": "ALL"})
         resp = oanda.request(r)
-        print resp
+        print(resp)
         pl = resp.get('longOrderFillTransaction').get('pl')
         real_profits.append(float(pl))
-        print time, 's: Closed. Profit = ', pl, ' price = ', resp.get('longOrderFillTransaction').get('price')
+        print(time, 's: Closed. Profit = ', pl, ' price = ', resp.get('longOrderFillTransaction').get('price'))
     except:
-        print 'No long units to close'
+        print('No long units to close')
 
 def do_close_short():
     try:
         r = positions.PositionClose(config.account_id, 'EUR_USD', {"shortUnits": "ALL"})
         resp = oanda.request(r)
-        print resp
+        print(resp)
         pl = resp.get('shortOrderFillTransaction').get('tradesClosed')[0].get('realizedPL')
         real_profits.append(float(pl))
-        print time, 's: Closed. Profit = ', pl, ' price = ', resp.get('shortOrderFillTransaction').get('price')
+        print(time, 's: Closed. Profit = ', pl, ' price = ', resp.get('shortOrderFillTransaction').get('price'))
     except:
-        print 'No short units to close'
+        print('No short units to close')
 
 def get_bal():
     r = AccountDetails(config.account_id)
@@ -152,7 +153,7 @@ while True:
         plt.tight_layout()
 
     except Exception as e:
-        print e
+        print(e)
     plt.pause(config.period)
     time = time + config.period
 
